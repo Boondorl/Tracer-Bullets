@@ -59,10 +59,9 @@ class ExampleShotgun : Shotgun replaces Shotgun
                 continue;
 
             // conal spread
-            // box-muller is really much better for multi-shot weapons than uniform...
-            double theta = FRandom[Gunshot](0,360);
-            double rad = 2.4 * sqrt(FRandom[Gunshot](0,1));
-            Quat ofs = Quat.FromAngles(rad * cos(theta), rad * sin(theta), 0);
+            Vector2 angles = Distribution.Gaussian(2.4);
+            //Vector2 angles = Distribution.Uniform(2.4);
+            Quat ofs = Quat.FromAngles(angles.x, angles.y, 0);
 
             Vector3 dir = base * ofs * forward;
 
