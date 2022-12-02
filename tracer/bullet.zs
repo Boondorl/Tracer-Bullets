@@ -20,19 +20,19 @@ class ActivationLine
 
 class BulletTracer : LineTracer
 {
-    const BLOCKING = Line.ML_BLOCKEVERYTHING | Line.ML_BLOCKPROJECTILE;
+	const BLOCKING = Line.ML_BLOCKEVERYTHING | Line.ML_BLOCKPROJECTILE;
 
 	private Actor bullet;
 	private Array<ActivationLine> lines;
 
-    static BulletTracer Create(Actor bullet)
-    {
-        let bt = new("BulletTracer");
-        bt.bullet = bullet;
+	static BulletTracer Create(Actor bullet)
+	{
+		let bt = new("BulletTracer");
+		bt.bullet = bullet;
 
-        return bt;
-    }
-	
+		return bt;
+	}
+
 	void Reset()
 	{
 		lines.Clear();
@@ -41,7 +41,7 @@ class BulletTracer : LineTracer
 		results.hitActor = null;
 		results.hitLine = null;
 	}
-	
+
 	override ETraceStatus TraceCallback()
 	{
 		switch (results.hitType)
@@ -60,40 +60,40 @@ class BulletTracer : LineTracer
 			case TRACE_HitCeiling:
 				if (results.ffloor
 					&& (!(results.ffloor.flags & F3DFloor.FF_EXISTS)
-					    || !(results.ffloor.flags & F3DFloor.FF_SOLID)
-                        || (results.ffloor.flags & F3DFloor.FF_SHOOTTHROUGH)))
+						|| !(results.ffloor.flags & F3DFloor.FF_SOLID)
+						|| (results.ffloor.flags & F3DFloor.FF_SHOOTTHROUGH)))
 				{
 					results.ffloor = null;
 					break;
 				}
 				return TRACE_Stop;
-			
+
 			case TRACE_HitActor:
 				if (!CheckHit(results.hitActor))
 					break;
 				return TRACE_Stop;
 		}
-		
+
 		results.hitLine = null;
 		results.hitActor = null;
 		return TRACE_Skip;
 	}
-	
+
 	// Note: This isn't a fully complete set of checks
 	private bool CheckHit(Actor mo)
 	{
 		if (!bullet || !mo || mo == bullet || mo == bullet.target)
 			return false;
-		
+
 		if (mo.bNonshootable || (!mo.bShootable && !mo.bSolid))
 			return false;
-			
+
 		if (mo.bGhost && bullet.bThruGhost)
 			return false;
-			
+
 		if (mo.bSpectral && !bullet.bSpectral)
 			return false;
-			
+
 		return true;
 	}
 
@@ -117,15 +117,15 @@ class Bullet : Actor
 	static const double windTab[] = { 5/32., 10/32., 25/32. };
 
 	private transient BulletTracer bt;
-	
+
 	class<Actor> puffType;
 	class<Actor> smokeType;
 	double smokeDistance; // interval to spawn smoke along path
-	
+
 	property PuffType : puffType;
 	property SmokeType : smokeType;
 	property SmokeDistance : smokeDistance;
-	
+
 	Default
 	{
 		Projectile;
@@ -135,10 +135,10 @@ class Bullet : Actor
 		Bullet.PuffType "BulletPuff";
 		Bullet.SmokeType "RocketSmokeTrail";
 		Bullet.SmokeDistance 64;
-		
+
 		+BLOODSPLATTER
 	}
-	
+
 	override void Tick()
 	{
 		if (IsFrozen())
@@ -146,7 +146,7 @@ class Bullet : Actor
 
 		if (!bt)
 			bt = BulletTracer.Create(self);
-		
+
 		if (bWindThrust && waterLevel < 2 && !bNoClip)
 		{
 			int special = curSector.special;
@@ -155,21 +155,21 @@ class Bullet : Actor
 				case 40: case 41: case 42: // Wind_East
 					Thrust(windTab[special-40], 0);
 					break;
-					
+
 				case 43: case 44: case 45: // Wind_North
 					Thrust(windTab[special-43], 90);
 					break;
-					
+
 				case 46: case 47: case 48: // Wind_South
 					Thrust(windTab[special-46], 270);
 					break;
-					
+
 				case 49: case 50: case 51: // Wind_West
 					Thrust(windTab[special-49], 180);
 					break;
 			}
 		}
-		
+
 		if (!(vel ~== (0,0,0)))
 		{
 			// need these for the smoke spawning
@@ -200,10 +200,10 @@ class Bullet : Actor
 				for (double i = 0; i < bt.results.distance; i += interval)
 					Spawn(smokeType, level.Vec3Offset(oldPos, oldDir*i), ALLOW_REPLACE);
 			}
-				
+
 			CheckPortalTransition();
 			UpdateWaterLevel();
-			
+
 			if (hit)
 			{
 				TryMove(pos.xy, 0, true);
@@ -237,16 +237,16 @@ class Bullet : Actor
 								Blocking3DFloor = bt.results.ffloor.model;
 						}
 
-                        if (puffType
-                            && (bt.results.hitType == TRACE_HitWall || GetDefaultByType(puffType).bPuffOnActors))
-                        {
-                            SpawnPuff(puffType, pos, angle, angle, 3);
-                        }
+						if (puffType
+							&& (bt.results.hitType == TRACE_HitWall || GetDefaultByType(puffType).bPuffOnActors))
+						{
+							SpawnPuff(puffType, pos, angle, angle, 3);
+						}
 
 						ExplodeMissile(bt.results.hitLine, bt.results.hitActor, hitSky);
 						return;
 					}
-					
+
 					vel = (0,0,0);
 				}
 				else if (bt.results.hitType == TRACE_HitFloor)
@@ -254,8 +254,8 @@ class Bullet : Actor
 					SetZ(floorz);
 					if (bMissile)
 					{
-                        if (puffType)
-                            SpawnPuff(puffType, pos, angle, angle, 3);
+						if (puffType)
+							SpawnPuff(puffType, pos, angle, angle, 3);
 
 						if (bt.results.ffloor)
 							Blocking3DFloor = bt.results.ffloor.model;
@@ -264,7 +264,7 @@ class Bullet : Actor
 						ExplodeMissile(onsky: hitSky);
 						return;
 					}
-					
+
 					if (vel.z < 0)
 						vel.z = 0;
 				}
@@ -273,9 +273,9 @@ class Bullet : Actor
 					SetZ(ceilingz - height);
 					if (bMissile)
 					{
-                        if (puffType)
-                            SpawnPuff(puffType, pos, angle, angle, 3);
-                            
+						if (puffType)
+							SpawnPuff(puffType, pos, angle, angle, 3);
+
 						if (bt.results.ffloor)
 							Blocking3DFloor = bt.results.ffloor.model;
 
@@ -283,19 +283,19 @@ class Bullet : Actor
 						ExplodeMissile(onsky: hitSky);
 						return;
 					}
-					
+
 					if (vel.z > 0)
 						vel.z = 0;
 				}
 			}
 		}
-		
+
 		if (!bNoGravity && pos.z > floorZ)
 			vel.z -= GetGravity();
-		
+
 		if (!CheckNoDelay())
 			return;
-			
+
 		if (tics > 0)
 			--tics;
 		while (!tics)
